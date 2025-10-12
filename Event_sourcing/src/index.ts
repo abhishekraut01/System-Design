@@ -1,5 +1,5 @@
-import { EventStore } from "./eventStore";
-import { BankAccount } from "./bankAccount";
+import { EventStore } from "./eventStore.js";
+import { BankAccount } from "./bankAccount.js";
 
 const store = new EventStore();
 

@@ -1,17 +1,17 @@
-# base image which include node and all essencial things to create node backend image
 FROM node:24-alpine3.22
 
-# setting up the working dir 
 WORKDIR /home/app
 
-# copy all the files 
-COPY . .
+COPY package.json pnpm-lock.yaml ./
 
-# run the command to install dependencies 
-RUN npm install
+RUN npm install -g pnpm
+RUN pnpm install --frozen-lockfile
 
-# build commnad to buld the project
-RUN npm run build
+COPY tsconfig.json .
+COPY src ./src
 
-# run CMD start command to run the project
-CMD [ "npm" ,"run", "start" ]
+RUN pnpm run build
+
+CMD ["pnpm" , "start"]
+
+

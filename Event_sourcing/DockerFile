@@ -1,0 +1,6 @@
+FROM 24-alpine3.21
+
+WORKDIR /home/app
+
+COPY . .
+

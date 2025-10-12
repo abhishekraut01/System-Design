@@ -1,17 +1,40 @@
-FROM node:24-alpine3.22
+# ---------- Stage 1: Builder ----------
+FROM node:24-alpine3.22 AS builder
 
 WORKDIR /home/app
 
+# Copy lockfile & package manifest first for efficient caching
 COPY package.json pnpm-lock.yaml ./
 
+# Install pnpm and dependencies
 RUN npm install -g pnpm
 RUN pnpm install --frozen-lockfile
 
-COPY tsconfig.json .
+# Copy rest of the code and build
+COPY tsconfig.json ./
 COPY src ./src
 
 RUN pnpm run build
 
-CMD ["pnpm" , "start"]
 
+# ---------- Stage 2: Runner ----------
+FROM node:24-alpine3.22 AS runner
 
+WORKDIR /home/app
+
+# Set env to production
+ENV NODE_ENV=production
+
+# Copy only necessary build output & dependencies
+COPY --from=builder /home/app/dist ./dist
+COPY package.json pnpm-lock.yaml ./
+
+# Install only production dependencies
+RUN npm install -g pnpm
+RUN pnpm install --prod --frozen-lockfile
+
+# Expose your app’s port (optional, usually 3000)
+EXPOSE 3000
+
+# Command to run the app
+CMD ["pnpm", "start"]
